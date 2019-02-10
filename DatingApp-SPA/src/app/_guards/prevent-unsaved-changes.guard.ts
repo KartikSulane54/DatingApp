@@ -5,7 +5,7 @@ import { CanDeactivate } from '@angular/router';
 @Injectable()
 export class PreventUnsavedChanges implements CanDeactivate<MemberEditComponent> {
   canDeactivate(component: MemberEditComponent) {
-    if((component.editForm.dirty) {
+    if (component.editForm.dirty) {
       return confirm('Are you sure about leaving this page ?');
     }
     return true;
