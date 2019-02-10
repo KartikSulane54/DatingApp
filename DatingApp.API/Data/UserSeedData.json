@@ -1,6 +1,6 @@
 [
   {
-    "Username": "Freda",
+    "Username": "freda",
     "Gender": "female",
     "DateOfBirth": "1980-03-12",
     "Password": "password",
@@ -25,7 +25,7 @@
     ]
   },
   {
-    "Username": "Aida",
+    "Username": "aida",
     "Gender": "female",
     "DateOfBirth": "1989-10-18",
     "Password": "password",
