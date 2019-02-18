@@ -40,6 +40,17 @@ namespace DatingApp.API.Controllers
 
         }
 
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetPhoto(int id)
+        {
+            var photoFromRepo = await _repo.GetPhoto(id);
+
+            var photo = _mapper.Map<PhotoForReturnDTO>(photoFromRepo);
+
+            return Ok(photo);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> AddPhotoForUser(int userid, PhotoForCreationDTO photoForCreationDTO)
         {
@@ -78,7 +89,8 @@ namespace DatingApp.API.Controllers
 
             if(await _repo.SaveAll())
             {
-                return Ok();            
+                var photoToReturn = _mapper.Map<PhotoForReturnDTO>(photo);
+                return CreatedAtRoute("GetPhoto", new { id = photo.Id },photoToReturn);             
             }
 
             return BadRequest("Could Not Add Photo");
