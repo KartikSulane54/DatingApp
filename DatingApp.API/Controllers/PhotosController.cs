@@ -40,7 +40,7 @@ namespace DatingApp.API.Controllers
 
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}",Name = "GetPhoto")]
         public async Task<IActionResult> GetPhoto(int id)
         {
             var photoFromRepo = await _repo.GetPhoto(id);
@@ -52,7 +52,8 @@ namespace DatingApp.API.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> AddPhotoForUser(int userid, PhotoForCreationDTO photoForCreationDTO)
+        public async Task<IActionResult> AddPhotoForUser(int userid, 
+        [FromForm]PhotoForCreationDTO photoForCreationDTO)
         {
             if (userid != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
                 return Unauthorized();
