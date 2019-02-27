@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using DatingApp.API.Data;
 using DatingApp.API.DTOs;
 using DatingApp.API.Models;
@@ -18,8 +19,10 @@ namespace DatingApp.API.Controllers
     {
         private readonly IAuthRepository _repo;
         private readonly IConfiguration _config;
-        public AuthController(IAuthRepository repo,IConfiguration config)
+        private readonly IMapper _mapper;
+        public AuthController(IAuthRepository repo, IConfiguration config, IMapper mapper)
         {
+            _mapper = mapper;
             _repo = repo;
             _config = config;
         }
@@ -28,7 +31,7 @@ namespace DatingApp.API.Controllers
         public async Task<IActionResult> Register(UserForRegisterDTO userForRegisterDTO)
         {
             // validate request ???
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             userForRegisterDTO.UserName = userForRegisterDTO.UserName.ToLower();
@@ -41,43 +44,49 @@ namespace DatingApp.API.Controllers
             var userToCreate = new User
             {
                 Username = userForRegisterDTO.UserName
-            }; 
+            };
 
-            var createdUser = await _repo.Register(userToCreate,userForRegisterDTO.Password);  
+            var createdUser = await _repo.Register(userToCreate, userForRegisterDTO.Password);
 
             return StatusCode(201);
         }
 
         [HttpPost("login")]
-         public async Task<IActionResult> Login(UserForLoginDTO userForLoginDTO)
-         {
-             var userFromRepo = await _repo.Login(userForLoginDTO.Username.ToLower(),userForLoginDTO.Password);
+        public async Task<IActionResult> Login(UserForLoginDTO userForLoginDTO)
+        {
+            var userFromRepo = await _repo.Login(userForLoginDTO.Username.ToLower(), userForLoginDTO.Password);
 
-             if(userFromRepo == null)
+            if (userFromRepo == null)
                 return Unauthorized();
 
-                var claims = new[]
-                {
+            var claims = new[]
+            {
                     new Claim(ClaimTypes.NameIdentifier,userFromRepo.Id.ToString()),
                     new Claim(ClaimTypes.Name, userFromRepo.Username)
                 };
 
-                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
-             
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("AppSettings:Token").Value));
 
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = new ClaimsIdentity(claims),
-                    Expires = DateTime.Now.AddDays(1),
-                    SigningCredentials = creds
-                };
-                
-                var tokenHandler = new JwtSecurityTokenHandler();
-                
-                var token = tokenHandler.CreateToken(tokenDescriptor);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
-                return Ok( new { token = tokenHandler.WriteToken(token)});
-         }
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = creds
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            var user =  _mapper.Map<UserForListDTO>(userFromRepo);
+            
+            return Ok(new 
+            { 
+                token = tokenHandler.WriteToken(token),
+                user
+            });
         }
+    }
 }
