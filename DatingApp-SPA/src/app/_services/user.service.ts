@@ -30,6 +30,6 @@ setMainPhoto(userId: number, id: number) {
 }
 
 deletePhoto(userId: number, id: number) {
-  return this.http.delete(this.baseUrl + 'users/' + userId + 'photos/' + id);
+  return this.http.delete(this.baseUrl + 'users/' + userId + '/photos/' + id);
 }
 }
