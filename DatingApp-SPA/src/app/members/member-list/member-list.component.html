@@ -5,3 +5,17 @@
     </div>
   </div>
 </div>
+
+<div class="d-flex justify-content-center">
+  <pagination
+   [boundaryLinks]="true"
+   [(ngModel)]="pagination.currentPage"
+   [totalItems]="pagination.totalItems"
+   [itemsPerPage]="pagination.itemsPerPage"
+   (pageChanged)="pageChanged($event)"
+   previousText="&lsaquo;"
+   nextText="&rsaquo;"
+   firstText="&laquo;"
+   lastText="&raquo;">
+  </pagination>
+</div>
